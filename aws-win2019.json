@@ -1,0 +1,40 @@
+{
+    "variables": {
+      "aws_access_key": "{{env `AWS_KEY_ID`}}",
+      "aws_secret_key": "{{env `AWS_SECRET`}}",
+      "region": "us-east-1"
+       },
+      "builders": [
+      {
+        "type": "amazon-ebs",
+        "access_key": "{{user `AWS_ACCESS_KEY`}}",
+        "secret_key": "{{user `AWS_SECRET_KEY`}}",
+        "region": "{{user `region`}}",
+        "source_ami": "ami-0d5b55fd8cd8738f5",
+        "instance_type": "t2.micro",
+        "user_data_file": "bootstrap.txt",
+        "communicator": "winrm",
+        "winrm_username": "Administrator",
+        "winrm_timeout": "15m",
+        "associate_public_ip_address": "true",
+        "ami_name": "Win2019-AIP{{timestamp}}"
+      }
+   ],
+   "provisioners": [
+    {
+      "type": "powershell",
+      "script":  "falcon-install.ps1"
+    },
+    
+    {
+    "type": "powershell",
+    "inline": [
+        
+        "& $env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /quiet /quit /mode:vm",
+        "while($true) { $imageState = Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Setup\\State | Select ImageState; if($imageState.ImageState -ne 'IMAGE_STATE_GENERALIZE_RESEAL_TO_OOBE') { Write-Output $imageState.ImageState; Start-Sleep -s 10  } else { break } }"
+              ]
+    }
+    
+  
+  ]
+     }
