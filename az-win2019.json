@@ -29,13 +29,7 @@
    }],
  
    "provisioners": [
-   {
-     "type": "powershell",
-     "script":  "falcon-install.ps1"
-     
-     
-   },
- 
+   
    {
      "type": "windows-update",
      "search_criteria": "IsInstalled=0",
